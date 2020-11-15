@@ -49,12 +49,14 @@ func GetPLanguagesEndpoint(w http.ResponseWriter, req *http.Request) {
 	fmt.Println("GET", time.Now())
 	fmt.Println("Headers:", req.Header, "\n")
 	
+	pLangs := []PLang{}
+	
 	if(createdJWT == strings.Split(req.Header.Get("Authorization"), " ")[1]) {
 		fmt.Println("JWTs are the same\n")
 		
 		rows, _ := db.Query("SELECT PLangID, Name FROM programming_languages")
 		
-		var pLangs []PLang
+		
 		var pLangID int
 		var pLangName string
 		
@@ -63,17 +65,18 @@ func GetPLanguagesEndpoint(w http.ResponseWriter, req *http.Request) {
 			pLangs = append(pLangs, PLang{ID: pLangID, Name: pLangName})
 		}
 		
-		json.NewEncoder(w).Encode(&pLangs)
+		fmt.Println("GET pLangs:", pLangs)
+		fmt.Println("pLangs length:", len(pLangs))
 	} else {
 		fmt.Println("JWTs are not the same")
+		w.WriteHeader(http.StatusUnauthorized)
 	}
+	json.NewEncoder(w).Encode(&pLangs)
 }
 
 func AddPLanguageEndpoint(w http.ResponseWriter, req *http.Request) {
 	if(createdJWT == strings.Split(req.Header.Get("Authorization"), " ")[1]) {
 		var pLang PLang
-		
-		fmt.Println("Header test:", req.Header.Get("testHeader"))
 
 		json.NewDecoder(req.Body).Decode(&pLang)
 		
@@ -84,6 +87,7 @@ func AddPLanguageEndpoint(w http.ResponseWriter, req *http.Request) {
 		GetPLanguagesEndpoint(w, req)
 	} else {
 		fmt.Println("JWTs are not the same")
+		w.WriteHeader(http.StatusUnauthorized)
 	}
 }
 
@@ -123,6 +127,7 @@ func EditPLanguageEndpoint(w http.ResponseWriter, req *http.Request) {
 		}
 	} else {
 		fmt.Println("JWTs are not the same")
+		w.WriteHeader(http.StatusUnauthorized)
 	}
 }
 
@@ -137,6 +142,7 @@ func DeletePLanguageEndpoint(w http.ResponseWriter, req *http.Request) {
 		GetPLanguagesEndpoint(w, req)
 	} else {
 		fmt.Println("JWTs are not the same")
+		w.WriteHeader(http.StatusUnauthorized)
 	}
 }
 
